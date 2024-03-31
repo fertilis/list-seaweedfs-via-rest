@@ -5,29 +5,23 @@
 I've encountered a situation when listing by prefix via s3 API is broken.
 I tried both boto3 and minio client.
 
+## Implementation
+
+While listing saves file system tree in depth-first order to a file
+
+
 ## Example
 
 ```bash
-python3 list_seaweedfs_via_rest.py https://old-hfs.skns.dev/buckets/algoseek/algoseek/future_spreads/ io
+./list.sh https://old-hfs.skns.dev/buckets/algoseek/algoseek/future_spreads/quotes/2023/08/11/ZS/ZSX5/ --data-dir io --verbose
 ```
 
-This will create a file in `io/` directory containing object tree in breadth-first order.
 
-Second run of the script will just build the tree from the file.
-
+## To get a list of objects (url, file size)
 
 ```python
-from list_seaweedfs_via_rest import list_seaweedfs_objects, FsItem
+from dfs_list import FsItem, load_fs_items
 
-items = list(list_seaweedfs_objects("https://old-hfs.skns.dev/buckets/algoseek/algoseek/future_spreads/", "io"))
-```
-
-Or urls can be just read from file like
-
-
-```python
-from list_seaweedfs_via_rest import read_urls_from_file, FsItem
-
-items = list(read_urls_from_file("https://old-hfs.skns.dev/buckets/algoseek/algoseek/future_spreads/", "io"))
+fs_items: list[FsItem] = load_fs_items("https://old-hfs.skns.dev/buckets/algoseek/algoseek/future_spreads/", "io")
 ```
 

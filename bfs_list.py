@@ -1,3 +1,6 @@
+"""
+Obsolete
+"""
 from __future__ import annotations
 import collections as col
 import urllib.parse
@@ -45,21 +48,26 @@ class FsItem(typing.NamedTuple):
     url: str
     is_dir: int
     file_size: int
-    
+
     def is_child(self, parent: FsItem) -> bool:
         self_slash_count = self.url.count("/")
         parent_slash_count = parent.url.count("/")
-        return (
-            self.url.startswith(parent.url) 
-            and (
-                (self_slash_count == parent_slash_count + 1 and self.is_dir and parent.is_dir)
-                or (self_slash_count == parent_slash_count and not self.is_dir and parent.is_dir)
+        return self.url.startswith(parent.url) and (
+            (
+                self_slash_count == parent_slash_count + 1
+                and self.is_dir
+                and parent.is_dir
+            )
+            or (
+                self_slash_count == parent_slash_count
+                and not self.is_dir
+                and parent.is_dir
             )
         )
-    
+
     def to_tsv(self) -> str:
         return f"{self.url}\t{self.is_dir}\t{self.file_size}"
-    
+
     @classmethod
     def from_tsv(cls, csv: str) -> FsItem:
         url, is_dir, file_size = csv.split("\t")
@@ -71,16 +79,15 @@ class Node:
     fs_item: FsItem
     parent: Node | None
     children: list[Node]
-    
+
     def __init__(self, parent: Node | None, fs_item: FsItem):
         self.fs_item = fs_item
         self.parent = parent
         self.children = []
-        
+
     def is_leaf(self) -> bool:
         return len(self.children) == 0
-    
-    
+
     def bfs(self) -> list[Node]:
         nodes = [self]
         queue = col.deque(nodes)
@@ -89,7 +96,7 @@ class Node:
             queue.extend(node.children)
             nodes.extend(node.children)
         return nodes
-    
+
     def level(self) -> int:
         level = 0
         node = self
@@ -97,8 +104,8 @@ class Node:
             node = node.parent
             level += 1
         return level
-    
-    
+
+
 def load_tree(path: str) -> Node | None:
     with open(path, "r") as f:
         lines = f.readlines()
@@ -127,7 +134,6 @@ def load_tree(path: str) -> Node | None:
     return root
 
 
-    
 def list_url(url: str) -> list[FsItem]:
     url2 = urllib.parse.urlparse(url)
     url_prefix = f"{url2.scheme}://{url2.netloc}"
@@ -148,8 +154,8 @@ def list_url(url: str) -> list[FsItem]:
         return items
     else:
         raise Exception(f"Failed to list {url}: {response.status_code}")
-    
-    
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("url", type=str)

@@ -145,6 +145,8 @@ def list_url(url: str) -> list[FsItem]:
     if response.status_code == 200:
         data = response.json()
         items = []
+        if data["Entries"] is None:
+            return []
         for raw_item in data["Entries"]:
             item_url = f"{url_prefix}{raw_item['FullPath']}"
             is_dir = int("chunks" not in raw_item)

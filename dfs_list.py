@@ -149,12 +149,16 @@ def list_url(url: str) -> list[FsItem]:
             return []
         for raw_item in data["Entries"]:
             item_url = f"{url_prefix}{raw_item['FullPath']}"
-            is_dir = int("chunks" not in raw_item)
+            is_file = "Md5" in raw_item and raw_item["Md5"] is not None
+            is_dir = int(not is_file)
             if is_dir and not item_url.endswith("/"):
                 item_url += "/"
                 size = 0
             else:
-                size = sum(chunk["size"] for chunk in raw_item["chunks"])
+                if "chunks" in raw_item:
+                    size = sum(chunk["size"] for chunk in raw_item["chunks"])
+                else:
+                    size = 0
             item = FsItem(item_url, is_dir, size)
             items.append(item)
         return items
